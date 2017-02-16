@@ -40,7 +40,7 @@ void loop() {
 delay(50);
 
 
-  ping=sonar.ping_median(20);
+  ping=sonar.ping_median(200);
   distancecm=(sonar.convert_cm(ping));
 
 
