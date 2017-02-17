@@ -2,13 +2,10 @@
 This is for the arduino genuino flavor of arduino, but I would think it should compile on any of the arduino variants. 
 Make sure you copy the NewPing library into your Arduino library folder. Mine is at "C:\Users\%USERNAME%\Documents\Arduino\libraries", 
 but yours may be different.
-
 To turn on the motor, you have to throw the MOTOR_PIN output to low, which is counterintuitive, 
 but that seems to be the way it works. 
-
 I plan on adding more code to log levels, alarms and other stuff to an online database/interface 
 soon. 
-
 Also, the current version has tons of garbage in it that I've commented out. That will go away soon.
 */
 #include <SPI.h>
@@ -47,21 +44,13 @@ WiFiUDP Udp;
 void setup() {
   // put your setup code here, to run once:
 Serial.begin(115200);
+while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
 pinMode(MOTOR_PIN, OUTPUT);
 digitalWrite(MOTOR_PIN,HIGH);
   
-String fv = WiFi.firmwareVersion();
-if (fv != "1.1.0") 
-{
-Serial.println("Please upgrade the firmware");
-}
 
-}
-
-void loop() {
-
-  // put your main code here, to run repeatedly:
-  
     // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present"); 
@@ -69,6 +58,11 @@ void loop() {
     while(true);
   } 
   
+  String fv = WiFi.firmwareVersion();
+if (fv != "1.1.0") 
+{
+Serial.println("Please upgrade the firmware");
+}
  // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED) { 
     Serial.print("Attempting to connect to open SSID: ");
@@ -77,6 +71,79 @@ void loop() {
     
 // wait 10 seconds for connection:
 delay(10000);
+}
+}
+
+void printWifiData() {
+  // print your WiFi shield's IP address:
+  IPAddress ip = WiFi.localIP();
+    Serial.print("IP Address: ");
+  Serial.println(ip);
+  Serial.println(ip);
+  
+  // print your MAC address:
+  byte mac[6];  
+  WiFi.macAddress(mac);
+  Serial.print("MAC address: ");
+  Serial.print(mac[5],HEX);
+  Serial.print(":");
+  Serial.print(mac[4],HEX);
+  Serial.print(":");
+  Serial.print(mac[3],HEX);
+  Serial.print(":");
+  Serial.print(mac[2],HEX);
+  Serial.print(":");
+  Serial.print(mac[1],HEX);
+  Serial.print(":");
+  Serial.println(mac[0],HEX);
+  
+  // print your subnet mask:
+  IPAddress subnet = WiFi.subnetMask();
+  Serial.print("NetMask: ");
+  Serial.println(subnet);
+
+  // print your gateway address:
+  IPAddress gateway = WiFi.gatewayIP();
+  Serial.print("Gateway: ");
+  Serial.println(gateway);
+}
+
+void printCurrentNet() {
+  // print the SSID of the network you're attached to:
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  // print the MAC address of the router you're attached to:
+  byte bssid[6];
+  WiFi.BSSID(bssid);    
+  Serial.print("BSSID: ");
+  Serial.print(bssid[5],HEX);
+  Serial.print(":");
+  Serial.print(bssid[4],HEX);
+  Serial.print(":");
+  Serial.print(bssid[3],HEX);
+  Serial.print(":");
+  Serial.print(bssid[2],HEX);
+  Serial.print(":");
+  Serial.print(bssid[1],HEX);
+  Serial.print(":");
+  Serial.println(bssid[0],HEX);
+
+  // print the received signal strength:
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI):");
+  Serial.println(rssi);
+
+  // print the encryption type:
+  byte encryption = WiFi.encryptionType();
+  Serial.print("Encryption Type:");
+  Serial.println(encryption,HEX);
+}
+
+void loop() {
+
+  // put your main code here, to run repeatedly:
+  
  sendNTPpacket(timeServer); // send an NTP packet to a time server
   // wait to see if a reply is available
   delay(1000);
@@ -265,74 +332,4 @@ false, print a serial message.
   printCurrentNet();
   printWifiData();
 }
-
-}
-
-void printWifiData() {
-  // print your WiFi shield's IP address:
-  IPAddress ip = WiFi.localIP();
-    Serial.print("IP Address: ");
-  Serial.println(ip);
-  Serial.println(ip);
-  
-  // print your MAC address:
-  byte mac[6];  
-  WiFi.macAddress(mac);
-  Serial.print("MAC address: ");
-  Serial.print(mac[5],HEX);
-  Serial.print(":");
-  Serial.print(mac[4],HEX);
-  Serial.print(":");
-  Serial.print(mac[3],HEX);
-  Serial.print(":");
-  Serial.print(mac[2],HEX);
-  Serial.print(":");
-  Serial.print(mac[1],HEX);
-  Serial.print(":");
-  Serial.println(mac[0],HEX);
-  
-  // print your subnet mask:
-  IPAddress subnet = WiFi.subnetMask();
-  Serial.print("NetMask: ");
-  Serial.println(subnet);
-
-  // print your gateway address:
-  IPAddress gateway = WiFi.gatewayIP();
-  Serial.print("Gateway: ");
-  Serial.println(gateway);
-}
-
-void printCurrentNet() {
-  // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-
-  // print the MAC address of the router you're attached to:
-  byte bssid[6];
-  WiFi.BSSID(bssid);    
-  Serial.print("BSSID: ");
-  Serial.print(bssid[5],HEX);
-  Serial.print(":");
-  Serial.print(bssid[4],HEX);
-  Serial.print(":");
-  Serial.print(bssid[3],HEX);
-  Serial.print(":");
-  Serial.print(bssid[2],HEX);
-  Serial.print(":");
-  Serial.print(bssid[1],HEX);
-  Serial.print(":");
-  Serial.println(bssid[0],HEX);
-
-  // print the received signal strength:
-  long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.println(rssi);
-
-  // print the encryption type:
-  byte encryption = WiFi.encryptionType();
-  Serial.print("Encryption Type:");
-  Serial.println(encryption,HEX);
-}
-
-
 
